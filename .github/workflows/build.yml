@@ -1,0 +1,96 @@
+# Builds the Windows installer and macOS disk image.
+# - Run it manually from the Actions tab ("Run workflow") to get test builds as downloadable artifacts.
+# - Push a version tag (e.g. `git tag v1.0.0 && git push origin v1.0.0`) to also publish a GitHub Release
+#   with both downloads attached. Keep the tag in step with `project(... VERSION ...)` in CMakeLists.txt.
+# - Google Sheets backup needs repository secrets GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+#   (Settings → Secrets and variables → Actions). Without them the builds still work, minus that feature.
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (UCRT64) with Qt 6
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          location: D:\
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: cmd
+        env:
+          MSYS2_ROOT: D:\msys64
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: packaging\build-windows.bat
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*.exe
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt 6 (universal)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          host: mac
+          target: desktop
+          arch: clang_64
+          cache: true
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Build disk image
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: bash packaging/build-macos.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: dist/*.dmg
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

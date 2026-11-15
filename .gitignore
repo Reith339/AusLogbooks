@@ -1,0 +1,16 @@
+# Build output
+/build/
+/build-release/
+/build-macos/
+/dist/
+
+# Generated on macOS by packaging/build-macos.sh
+/resources/LogBook.icns
+
+# Editor / OS clutter
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Google OAuth client (see google-oauth.cmake.example)
+/google-oauth.cmake

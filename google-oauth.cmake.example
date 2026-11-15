@@ -1,0 +1,5 @@
+# Copy this file to google-oauth.cmake (which git ignores) and fill in your Google OAuth
+# client, created in Google Cloud Console as type "Desktop app". See README.md →
+# "Google Sheets backup setup".
+set(GOOGLE_CLIENT_ID "1234567890-abcdefg.apps.googleusercontent.com")
+set(GOOGLE_CLIENT_SECRET "GOCSPX-xxxxxxxxxxxxxxxxxxxx")
