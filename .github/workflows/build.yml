@@ -18,7 +18,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up MSYS2 (UCRT64) with Qt 6
         uses: msys2/setup-msys2@v2
@@ -44,7 +44,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: packaging\build-windows.bat
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: windows-installer
           path: dist/*.exe
@@ -54,15 +54,17 @@ jobs:
     # Apple Silicon runner; "latest" avoids breaking when GitHub retires older macOS images.
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
+      # Qt 6.10+ is needed with Xcode 26: older Qt links Apple's removed AGL framework.
       - name: Install Qt 6 (universal)
         uses: jurplel/install-qt-action@v4
         with:
-          version: "6.8.3"
+          version: "6.11.3"
           host: mac
           target: desktop
           arch: clang_64
+          aqtversion: ">=3.1"
           cache: true
 
       - name: Install Ninja
@@ -74,7 +76,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: bash packaging/build-macos.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: macos-dmg
           path: dist/*.dmg
@@ -85,7 +87,7 @@ jobs:
     needs: [windows, macos]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: dist
           merge-multiple: true

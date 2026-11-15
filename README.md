@@ -66,7 +66,7 @@ Requires MSYS2 UCRT64 with `mingw-w64-ucrt-x86_64-qt6-base`, `-cmake` and `-ninj
 - `packaging\build-windows.bat`: release installer → `dist\PilotLogbook-<version>-Windows-Setup.exe`
 
 ### macOS
-`packaging/build-macos.sh` builds `dist/PilotLogbook-<version>-macOS.dmg` (Apple Silicon + Intel) on a Mac
+`packaging/build-macos.sh` builds `dist/PilotLogbook-<version>-macOS.dmg` (Apple Silicon + Intel, macOS 13 Ventura or later) on a Mac
 with Qt 6, CMake and Ninja. Without a Mac, use GitHub Actions (below).
 
 ### GitHub Actions (both platforms)

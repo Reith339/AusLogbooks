@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds dist/PilotLogbook-<version>-macOS.dmg (universal: Apple Silicon + Intel).
+# Builds dist/PilotLogbook-<version>-macOS.dmg (universal: Apple Silicon + Intel, macOS 13+).
 # Run on a Mac with Xcode command-line tools, CMake, Ninja and Qt 6 (qmake/macdeployqt on PATH,
 # e.g. via the Qt online installer or GitHub Actions' install-qt-action).
 # Set ARCHS=arm64 to build for Apple Silicon only (needed if your Qt isn't universal, e.g. Homebrew).
@@ -30,7 +30,7 @@ cmake -S . -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   ${GOOGLE_OPTS[@]+"${GOOGLE_OPTS[@]}"} \
   -DCMAKE_OSX_ARCHITECTURES="${ARCHS:-arm64;x86_64}" \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
 cmake --build "$BUILD"
 VERSION=$(cat "$BUILD/version.txt")
 
