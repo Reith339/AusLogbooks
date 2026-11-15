@@ -51,7 +51,8 @@ jobs:
           if-no-files-found: error
 
   macos:
-    runs-on: macos-14
+    # Apple Silicon runner; "latest" avoids breaking when GitHub retires older macOS images.
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
